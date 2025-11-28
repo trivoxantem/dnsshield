@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - NGShield</title>
+    <meta name="description" content="Create your NGShield account to start monitoring your .ng domains.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0EA44B',
+                        'primary-dark': '#0C8A3E',
+                        accent: '#0B74FF',
+                        'accent-dark': '#0960D9',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'app:index' %}" class="flex items-center">
+                    <span class="text-2xl font-bold text-primary">NG</span>
+                    <span class="text-2xl font-bold text-gray-900">Shield</span>
+                </a>
+                <a href="{% url 'app:login' %}" class="text-accent hover:text-accent-dark transition font-medium">
+                    Already have an account? Login
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Register Form -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Your Account</h1>
+                    <p class="text-gray-600">Start protecting your .ng domains today</p>
+                </div>
+
+
+                <div id="message-container" class="hidden mb-4 p-4 rounded-lg">
+                    {% if messages %}
+                        {% for msg in messages %}
+                            <div class="mb-2 p-2 rounded {{ msg.tags }}">{{ msg }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <form id="register-form" class="space-y-6" method="post" action="{% url 'app:register' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            Username *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="johndoe"
+                        >
+                        <p id="username-error" class="text-red-600 text-sm mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="john@example.com"
+                        >
+                        <p id="email-error" class="text-red-600 text-sm mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password *
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                            minlength="8"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="••••••••"
+                        >
+                        <p class="text-gray-500 text-sm mt-1">Minimum 8 characters</p>
+                        <p id="password-error" class="text-red-600 text-sm mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Confirm Password *
+                        </label>
+                        <input 
+                            type="password" 
+                            id="confirm-password" 
+                            name="confirm_password" 
+                            required
+                            minlength="8"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="••••••••"
+                        >
+                        <p id="confirm-password-error" class="text-red-600 text-sm mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Terms Agreement -->
+                    <div class="flex items-start">
+                        <input 
+                            type="checkbox" 
+                            id="terms" 
+                            name="terms" 
+                            required
+                            class="w-4 h-4 mt-1 text-primary border-gray-300 rounded focus:ring-primary"
+                        >
+                        <label for="terms" class="ml-2 text-sm text-gray-600">
+                            I agree to the <a href="#" class="text-accent hover:underline">Terms of Service</a> and 
+                            <a href="#" class="text-accent hover:underline">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <p id="terms-error" class="text-red-600 text-sm hidden">You must agree to the terms</p>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition shadow-lg"
+                        id="submit-btn"
+                    >
+                        Create Account
+                    </button>
+
+                    <div class="text-center text-sm text-gray-600">
+                        Already have an account? 
+                        <a href="{% url 'app:login' %}" class="text-accent hover:underline font-medium">Login here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-white border-l-4 rounded-lg shadow-lg p-4 max-w-sm z-50">
+        <div class="flex items-center">
+            <div id="toast-icon" class="mr-3"></div>
+            <p id="toast-message" class="text-gray-800"></p>
+        </div>
+    </div>
+
+    <script>
+        // Utility: Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-primary rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            } else if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-red-500 rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            }
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        }
+
+        // Form validation and submission
+        const form = document.getElementById('register-form');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Clear previous errors
+            document.querySelectorAll('[id$="-error"]').forEach(el => {
+                el.classList.add('hidden');
+                el.textContent = '';
+            });
+            // Get form values
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const terms = document.getElementById('terms').checked;
+            let hasError = false;
+            // Validate username
+            if (username.length < 3) {
+                document.getElementById('username-error').textContent = 'Username must be at least 3 characters';
+                document.getElementById('username-error').classList.remove('hidden');
+                hasError = true;
+            }
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('email-error').textContent = 'Please enter a valid email address';
+                document.getElementById('email-error').classList.remove('hidden');
+                hasError = true;
+            }
+            // Validate password
+            if (password.length < 8) {
+                document.getElementById('password-error').textContent = 'Password must be at least 8 characters';
+                document.getElementById('password-error').classList.remove('hidden');
+                hasError = true;
+            }
+            // Validate password match
+            if (password !== confirmPassword) {
+                document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
+                document.getElementById('confirm-password-error').classList.remove('hidden');
+                hasError = true;
+            }
+            // Validate terms
+            if (!terms) {
+                document.getElementById('terms-error').classList.remove('hidden');
+                hasError = true;
+            }
+            if (hasError) return;
+            // Show loading state
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+            // Actually submit the form after validation and loading state
+            form.submit();
+        });
+        
+        // Real-time password match validation
+        document.getElementById('confirm-password').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const errorEl = document.getElementById('confirm-password-error');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.classList.remove('hidden');
+            } else {
+                errorEl.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

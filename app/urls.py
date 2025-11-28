@@ -1,0 +1,42 @@
+from django.urls import path
+from . import views
+
+app_name = 'app'
+
+urlpatterns = [
+    path('', views.dashboard, name='dashboard'),
+    path('domain/<int:domain_id>/', views.domain_detail, name='domain_detail'),
+    path('api/domain/delete/', views.delete_domain, name='delete_domain'),
+    path('extension/check/', views.extension_check, name='extension_check'),
+    path('extension/report/', views.extension_report, name='extension_report'),
+    path('alert/<int:alert_id>/resolve/', views.mark_alert_resolved, name='mark_alert_resolved'),
+    path('auth/login/', views.login_view, name='login'),
+    path('auth/logout/', views.logout_view, name='logout'),
+    path('auth/register/', views.register_view, name='register'),
+    path('index/', views.index_view, name='index'),
+    path('add_domain/', views.add_domain_view, name='add_domain'),
+    path('api/domains/', views.api_domains, name='api_domains'),
+    path('api/check_domain_status/', views.api_check_domain_status, name='api_check_domain_status'),
+    path('api/change_history/', views.api_change_history, name='api_change_history'),
+    path('api/domains/<int:domain_id>/rescan/', views.api_domain_rescan, name='api_domain_rescan'),
+    path('api/extension/blocklist/', views.api_extension_blocklist, name='api_extension_blocklist'),
+    path('api/extension/adult-blocklist/', views.api_extension_adult_blocklist, name='api_extension_adult_blocklist'),
+    path('api/extension/report-ad/', views.api_extension_report_ad, name='api_extension_report_ad'),
+    path('api/extension/check-url/', views.api_extension_check_url, name='api_extension_check_url'),
+    path('api/adult-domain/add/', views.add_adult_domain, name='add_adult_domain'),
+    path('api/adult-domain/delete/', views.delete_adult_domain, name='delete_adult_domain'),
+    path('api/alerts/', views.api_alerts, name='api_alerts'),
+    path('api/keys/', views.api_keys_list, name='api_keys_list'),
+    path('api/keys/create/', views.api_keys_create, name='api_keys_create'),
+    path('api/keys/revoke/', views.api_keys_revoke, name='api_keys_revoke'),
+    path('api_docs/', views.api_docs_view, name='api_docs'),
+    path('extension_info/', views.extension_info_view, name='extension_info'),
+    path('contact/', views.contact_view, name='contact'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('settings/', views.settings_view, name='settings'),
+    path('settings/update_profile/', views.update_profile_view, name='update_profile'),
+    path('settings/change_password/', views.change_password_view, name='change_password'),
+    path('settings/delete_account/', views.delete_account_view, name='delete_account'),
+    path('admin_dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
+    path('domain_detail.html', views.domain_detail_by_name, name='domain_detail_by_name'),
+]

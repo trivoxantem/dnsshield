@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings - NGShield</title>
+    <meta name="description" content="Manage your account settings and API keys.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0EA44B',
+                        'primary-dark': '#0C8A3E',
+                        accent: '#0B74FF',
+                        'accent-dark': '#0960D9',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'app:dashboard' %}" class="flex items-center">
+                    <span class="text-2xl font-bold text-primary">NG</span>
+                    <span class="text-2xl font-bold text-gray-900">Shield</span>
+                </a>
+                <a href="{% url 'app:dashboard' %}" class="text-accent hover:text-accent-dark transition font-medium">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
+            <p class="text-gray-600">Manage your profile and security settings</p>
+        </div>
+
+        <!-- API Keys -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">API Keys</h2>
+                    <p class="text-sm text-gray-600 mt-1">Manage API keys for programmatic access</p>
+                </div>
+                <button 
+                    id="generate-key-btn"
+                    class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+                >
+                    + Generate Key
+                </button>
+            </div>
+
+            <div id="api-keys-list" class="space-y-3">
+                <!-- API keys will be loaded here -->
+                <div class="text-center py-8 text-gray-500 text-sm">
+                    No API keys generated yet
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="bg-white rounded-xl shadow-sm border-2 border-red-200 p-8">
+            <h2 class="text-xl font-bold text-red-600 mb-4">Danger Zone</h2>
+            <p class="text-gray-600 mb-6">Permanently delete your account and all associated data</p>
+            
+            <button 
+                onclick="confirmDeleteAccount()"
+                class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
+            >
+                Delete Account
+            </button>
+        </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div id="api-key-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">New API Key Generated</h3>
+            <p class="text-sm text-gray-600 mb-4">Copy this key now. You won't be able to see it again!</p>
+            
+            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                <code id="new-api-key" class="text-sm font-mono break-all"></code>
+            </div>
+            
+            <div class="flex gap-3">
+                <button 
+                    onclick="copyApiKey()"
+                    class="flex-1 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition"
+                >
+                    Copy Key
+                </button>
+                <button 
+                    onclick="closeApiKeyModal()"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-white border-l-4 rounded-lg shadow-lg p-4 max-w-sm z-50">
+        <div class="flex items-center">
+            <div id="toast-icon" class="mr-3"></div>
+            <p id="toast-message" class="text-gray-800"></p>
+        </div>
+    </div>
+
+    <script>
+        // Utility: Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-primary rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            } else if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-red-500 rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            }
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        }
+
+        // Helper to read a cookie value
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Load API keys
+        async function loadApiKeys() {
+            try {
+                const response = await fetch('/api/keys/', {
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) throw new Error('Failed to load API keys');
+                
+                const data = await response.json();
+                renderApiKeys(data.keys || []);
+                
+            } catch (error) {
+                console.error('Error loading API keys:', error);
+                showToast('Failed to load API keys', 'error');
+            }
+        }
+
+        // Render API keys
+        function renderApiKeys(keys) {
+            const container = document.getElementById('api-keys-list');
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500 text-sm">No API keys generated yet</div>';
+                return;
+            }
+            
+            container.innerHTML = keys.map(key => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-900">${key.name || 'API Key'}</p>
+                        <p class="text-sm text-gray-600">Created: ${new Date(key.created_at).toLocaleDateString()}</p>
+                        <p class="text-xs text-gray-500 font-mono mt-1">${key.prefix}••••••••</p>
+                    </div>
+                    <button 
+                        onclick="revokeApiKey(${key.id})"
+                        class="text-red-600 hover:text-red-700 font-medium text-sm"
+                    >
+                        Revoke
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Generate API key
+        document.getElementById('generate-key-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/keys/create/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to generate API key');
+                
+                const data = await response.json();
+                document.getElementById('new-api-key').textContent = data.key;
+                document.getElementById('api-key-modal').classList.remove('hidden');
+                
+                loadApiKeys();
+                
+            } catch (error) {
+                console.error('API key generation error:', error);
+                showToast('Failed to generate API key', 'error');
+            }
+        });
+
+        // Copy API key
+        function copyApiKey() {
+            const key = document.getElementById('new-api-key').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                showToast('API key copied to clipboard', 'success');
+            });
+        }
+
+        // Close API key modal
+        function closeApiKeyModal() {
+            document.getElementById('api-key-modal').classList.add('hidden');
+        }
+
+        // Revoke API key
+        async function revokeApiKey(keyId) {
+            if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/keys/revoke/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ key_id: keyId })
+                });
+                
+                if (!response.ok) throw new Error('Failed to revoke API key');
+                
+                showToast('API key revoked successfully', 'success');
+                loadApiKeys();
+                
+            } catch (error) {
+                console.error('API key revoke error:', error);
+                showToast('Failed to revoke API key', 'error');
+            }
+        }
+
+        // Load API keys on page load
+        window.addEventListener('DOMContentLoaded', loadApiKeys);
+    </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Domain - NGShield</title>
+    <meta name="description" content="Add a new .ng domain to monitor.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0EA44B',
+                        'primary-dark': '#0C8A3E',
+                        accent: '#0B74FF',
+                        'accent-dark': '#0960D9',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'app:dashboard' %}" class="flex items-center">
+                    <span class="text-2xl font-bold text-primary">NG</span>
+                    <span class="text-2xl font-bold text-gray-900">Shield</span>
+                </a>
+                <a href="{% url 'app:dashboard' %}" class="text-accent hover:text-accent-dark transition font-medium">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Add New Domain</h1>
+            <p class="text-gray-600">Monitor a new .ng domain for DNS changes and security threats</p>
+        </div>
+
+        <!-- Add Domain Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+            <form id="domain-form" method="post" action="{% url 'app:add_domain' %}">
+                {% csrf_token %}
+                <input type="hidden" name="generate_pdf" id="generate_pdf" value="0">
+                <div class="mb-6">
+                    <label for="domain" class="block text-sm font-medium text-gray-700 mb-2">
+                        Domain Name *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="domain" 
+                        name="domain" 
+                        required
+                        placeholder="example.ng or *.ng"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                    >
+                    <p class="text-gray-500 text-sm mt-2">
+                        Enter a .ng domain (e.g., example.ng) or use wildcard (*.ng) to monitor multiple subdomains
+                    </p>
+                    <p id="domain-error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+
+                <div class="flex gap-4">
+                    <button 
+                        type="button"
+                        id="add-domain-btn"
+                        class="bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition"
+                    >
+                        Add Domain
+                    </button>
+                    <button 
+                        type="button"
+                        id="preview-btn"
+                        class="bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition"
+                    >
+                        Preview DNS Records
+                    </button>
+                    <button 
+                        type="button"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-lg transition"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preview Panel -->
+        <div id="preview-panel" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Domain Preview</h2>
+            
+            <!-- Loading State -->
+            <div id="preview-loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+                <p class="text-gray-600 mt-4">Fetching DNS records...</p>
+            </div>
+
+            <!-- Preview Content -->
+            <div id="preview-content" class="hidden">
+                <!-- Domain Status -->
+                <div class="mb-8 p-4 rounded-lg bg-gray-50">
+                    <h3 class="font-semibold text-gray-900 mb-2">Domain Status</h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Domain:</span>
+                            <span id="preview-domain" class="font-medium text-gray-900 ml-2"></span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Status:</span>
+                            <span id="preview-status" class="font-medium ml-2"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current DNS Records -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-gray-900 mb-4">Current DNS Records</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">TTL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dns-records-table" class="bg-white divide-y divide-gray-200">
+                                <!-- Records will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- WHOIS Information -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-gray-900 mb-4">WHOIS Information</h3>
+                    <div id="whois-info" class="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-700 overflow-x-auto">
+                        <!-- WHOIS info will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4 pt-6 border-t border-gray-200">
+                    <button 
+                        id="save-btn"
+                        type="submit"
+                        onclick="document.getElementById('generate_pdf').value='1'"
+                        class="bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-lg transition shadow-lg"
+                    >
+                        Save & Monitor Domain
+                    </button>
+                    <button 
+                        onclick="location.reload()"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-lg transition"
+                    >
+                        Start Over
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="preview-error" class="hidden text-center py-8">
+                <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p id="preview-error-message" class="text-gray-600"></p>
+                <button onclick="location.reload()" class="mt-4 text-accent hover:underline font-medium">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-white border-l-4 rounded-lg shadow-lg p-4 max-w-sm z-50">
+        <div class="flex items-center">
+            <div id="toast-icon" class="mr-3"></div>
+            <p id="toast-message" class="text-gray-800"></p>
+        </div>
+    </div>
+
+    <script>
+        // Utility: Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-primary rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            } else if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-red-500 rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            }
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        }
+
+        // Domain validation
+        function validateDomain(domain) {
+            // Match .ng domains or wildcard *.ng
+            const ngDomainRegex = /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*ng$/i;
+            return ngDomainRegex.test(domain);
+        }
+
+        // Preview domain
+        document.getElementById('preview-btn').addEventListener('click', async () => {
+            const domainInput = document.getElementById('domain');
+            const domain = domainInput.value.trim();
+            const errorEl = document.getElementById('domain-error');
+            
+            // Validate
+            if (!domain) {
+                errorEl.textContent = 'Please enter a domain name';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (!validateDomain(domain)) {
+                errorEl.textContent = 'Please enter a valid .ng domain (e.g., example.ng or *.ng)';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            errorEl.classList.add('hidden');
+            
+            // Show preview panel
+            const previewPanel = document.getElementById('preview-panel');
+            const previewLoading = document.getElementById('preview-loading');
+            const previewContent = document.getElementById('preview-content');
+            const previewError = document.getElementById('preview-error');
+            
+            previewPanel.classList.remove('hidden');
+            previewLoading.classList.remove('hidden');
+            previewContent.classList.add('hidden');
+            previewError.classList.add('hidden');
+            
+            // Scroll to preview
+            previewPanel.scrollIntoView({ behavior: 'smooth' });
+            
+            try {
+                // Wire to Django endpoint: GET /api/check_domain_status/?domain=example.ng
+                // OR GET /api/domains/preview/?domain=example.ng
+                const response = await fetch(`/api/check_domain_status/?domain=${encodeURIComponent(domain)}`, {
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch domain information');
+                
+                const data = await response.json();
+                /* Expected response:
+                {
+                    domain: "example.ng",
+                    status: "active",
+                    dns_records: [
+                        { type: "A", name: "@", value: "192.168.1.1", ttl: 3600 },
+                        { type: "MX", name: "@", value: "mail.example.ng", ttl: 3600 }
+                    ],
+                    whois: "Domain Name: example.ng\nRegistrar: ...",
+                    threat_level: "low"
+                }
+                */
+                
+                renderPreview(data);
+                
+            } catch (error) {
+                console.error('Preview error:', error);
+                previewLoading.classList.add('hidden');
+                previewError.classList.remove('hidden');
+                document.getElementById('preview-error-message').textContent = 
+                    'Failed to fetch domain information. Please check the domain and try again.';
+            }
+        });
+
+        // Render preview
+        function renderPreview(data) {
+            const previewLoading = document.getElementById('preview-loading');
+            const previewContent = document.getElementById('preview-content');
+            
+            // Update domain info
+            document.getElementById('preview-domain').textContent = data.domain;
+            
+            const statusEl = document.getElementById('preview-status');
+            statusEl.textContent = data.status || 'Active';
+            statusEl.className = data.status === 'active' ? 'font-medium text-primary ml-2' : 'font-medium text-gray-600 ml-2';
+            
+            // Render DNS records
+            const dnsTable = document.getElementById('dns-records-table');
+            if (data.dns_records && data.dns_records.length > 0) {
+                dnsTable.innerHTML = data.dns_records.map(record => `
+                    <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${record.type}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">${record.name}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">${record.value}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${record.ttl}</td>
+                    </tr>
+                `).join('');
+            } else {
+                dnsTable.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-sm text-gray-500 text-center">No DNS records found</td></tr>';
+            }
+            
+            // Render WHOIS
+            document.getElementById('whois-info').textContent = data.whois || 'WHOIS information not available';
+            
+            // Show content
+            previewLoading.classList.add('hidden');
+            previewContent.classList.remove('hidden');
+        }
+
+        // Add-domain quick-submit: validate and submit the form when user clicks the Add Domain button
+        document.getElementById('add-domain-btn').addEventListener('click', (e) => {
+            const domainInput = document.getElementById('domain');
+            const domain = domainInput.value.trim();
+            const errorEl = document.getElementById('domain-error');
+            const addBtn = document.getElementById('add-domain-btn');
+
+            console.log('Add Domain button clicked, domain:', domain);
+
+            // Validate
+            if (!domain) {
+                errorEl.textContent = 'Please enter a domain name';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (!validateDomain(domain)) {
+                errorEl.textContent = 'Please enter a valid .ng domain (e.g., example.ng or *.ng)';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            errorEl.classList.add('hidden');
+            // Provide quick UI feedback
+            addBtn.disabled = true;
+            const oldText = addBtn.textContent;
+            addBtn.textContent = 'Adding...';
+
+            // Submit the form to server; form has CSRF token and posts to add_domain_view
+            const form = document.getElementById('domain-form');
+            console.log('Form element found:', form ? 'yes' : 'no');
+            try {
+                console.log('Submitting form...');
+                form.submit();
+            } catch (err) {
+                console.error('Form submit failed', err);
+                showToast('Failed to submit form. Please try again.', 'error');
+                addBtn.disabled = false;
+                addBtn.textContent = oldText;
+            }
+        });
+
+        // Save button (in preview panel) may be outside the <form> element — handle click and submit the main form
+        const saveBtn = document.getElementById('save-btn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                // ensure domain is valid before submitting
+                const domainInput = document.getElementById('domain');
+                const domain = domainInput ? domainInput.value.trim() : '';
+                const errorEl = document.getElementById('domain-error');
+                if (!domain) {
+                    if (errorEl) { errorEl.textContent = 'Please enter a domain name'; errorEl.classList.remove('hidden'); }
+                    return;
+                }
+                if (!validateDomain(domain)) {
+                    if (errorEl) { errorEl.textContent = 'Please enter a valid .ng domain (e.g., example.ng or *.ng)'; errorEl.classList.remove('hidden'); }
+                    return;
+                }
+
+                // mark that we want a PDF
+                const gen = document.getElementById('generate_pdf');
+                if (gen) gen.value = '1';
+
+                // disable button for feedback and submit the form (the preview button may be outside the form)
+                saveBtn.disabled = true;
+                const old = saveBtn.textContent;
+                saveBtn.textContent = 'Saving...';
+                const form = document.getElementById('domain-form');
+                if (form) {
+                    form.submit();
+                } else {
+                    // fallback: allow default submit (if inside form)
+                    // restore UI state after short delay if not redirected
+                    setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = old; }, 2000);
+                }
+            });
+        }
+
+        // The Save button now submits the form to the server (POST to the add_domain view).
+        // Server-side feedback is presented via Django messages.
+    </script>
+</body>
+</html>

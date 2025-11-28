@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGShield - Protect Your .ng Domains</title>
+    <meta name="description" content="Real-time DNS monitoring and threat detection for .ng domains. Protect your Nigerian domains from unauthorized changes and security threats.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0EA44B',
+                        'primary-dark': '#0C8A3E',
+                        accent: '#0B74FF',
+                        'accent-dark': '#0960D9',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hero-gradient { background: linear-gradient(135deg, #0EA44B 0%, #0C8A3E 100%); }
+        .feature-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-primary">NG</span>
+                    <span class="text-2xl font-bold text-gray-900">Shield</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-700 hover:text-primary transition">Features</a>
+                    <a href="#how-it-works" class="text-gray-700 hover:text-primary transition">How It Works</a>
+                    <a href="{% url 'app:login' %}" class="text-accent hover:text-accent-dark transition font-medium">Login</a>
+                    <a href="{% url 'app:register' %}" class="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg transition font-medium">Get Started</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="px-4 py-3 space-y-3">
+                <a href="#features" class="block text-gray-700 hover:text-primary">Features</a>
+                <a href="#how-it-works" class="block text-gray-700 hover:text-primary">How It Works</a>
+                <a href="{% url 'app:api_docs' %}" class="block text-gray-700 hover:text-primary">API Docs</a>
+                <a href="{% url 'app:extension_info' %}" class="block text-gray-700 hover:text-primary">Extension</a>
+                <a href="{% url 'app:contact' %}" class="block text-gray-700 hover:text-primary">Contact</a>
+                <a href="{% url 'app:login' %}" class="block text-accent font-medium">Login</a>
+                <a href="{% url 'app:register' %}" class="block bg-primary text-white px-4 py-2 rounded-lg text-center">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white py-20 lg:py-32">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                    Protect Your .ng Domains from Threats
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 text-green-50 leading-relaxed">
+                    Real-time DNS monitoring, threat detection, and automated alerts for Nigerian domains. Stay secure with 24/7 protection.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'app:register' %}" class="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition shadow-lg">
+                        Get Started Free
+                    </a>
+                    <a href="#how-it-works" class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 rounded-lg font-semibold text-lg transition">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Comprehensive Domain Protection
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Advanced monitoring tools to keep your Nigerian domains secure and protected from unauthorized changes.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+                    <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">24/7 DNS Monitoring</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Continuous monitoring of your DNS records with instant notifications when unauthorized changes are detected.
+                    </p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+                    <div class="w-12 h-12 bg-accent bg-opacity-10 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Real-Time Alerts</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Get instant email and in-app notifications when threats are detected, with detailed change logs.
+                    </p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+                    <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Complete DNS History</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Track all DNS changes with timestamped records and easy-to-understand visualizations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    How NGShield Works
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Three simple steps to secure your domains
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">1</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Add Your Domains</h3>
+                    <p class="text-gray-600">Register and add your .ng domains to start monitoring in seconds.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-accent text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">2</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Automatic Monitoring</h3>
+                    <p class="text-gray-600">Our system continuously monitors DNS changes and security threats.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">3</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Automatic Blocking URLs & ADS</h3>
+                    <p class="text-gray-600">Our system block Access to Added Domains and ADS Making you safe in any .ng Website</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                Ready to Secure Your Domains?
+            </h2>
+            <p class="text-xl text-gray-600 mb-8">
+                Join organizations protecting their .ng domains with NGShield
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'app:register' %}" class="bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-lg font-semibold text-lg transition">
+                    Start Free Trial
+                </a>
+                <a href="{% url 'app:extension_info' %}" class="bg-accent hover:bg-accent-dark text-white px-8 py-4 rounded-lg font-semibold text-lg transition">
+                    Install Extension
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <span class="text-2xl font-bold text-primary">NG</span>
+                        <span class="text-2xl font-bold text-white">Shield</span>
+                    </div>
+                    <p class="text-gray-400">Protecting Nigerian domains from threats.</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="hover:text-primary transition">Features</a></li>
+                        <li><a href="{% url 'app:dashboard' %}" class="hover:text-primary transition">Dashboard</a></li>
+                        <li><a href="{% url 'app:extension_info' %}" class="hover:text-primary transition">Extension</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'app:api_docs' %}" class="hover:text-primary transition">API Docs</a></li>
+                        <li><a href="#how-it-works" class="hover:text-primary transition">How It Works</a></li>
+                        <li><a href="{% url 'app:contact' %}" class="hover:text-primary transition">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li><a href="mailto:support@ngshield.ng" class="hover:text-primary transition">support@ngshield.ng</a></li>
+                        <li><a href="{% url 'app:contact' %}" class="hover:text-primary transition">Contact Form</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 NGShield. All rights reserved. Created by Trivox Codes</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

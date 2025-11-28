@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NGShield</title>
+    <meta name="description" content="Monitor your .ng domains and view threat analytics.">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0EA44B',
+                        'primary-dark': '#0C8A3E',
+                        accent: '#0B74FF',
+                        'accent-dark': '#0960D9',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'app:index' %}" class="flex items-center">
+                    <span class="text-2xl font-bold text-primary">NG</span>
+                    <span class="text-2xl font-bold text-gray-900">Shield</span>
+                </a>
+                
+                <!-- Desktop Menu -->
+                <div id="desktop-menu" class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'app:dashboard' %}" class="text-primary font-medium">Dashboard</a>
+                    <a href="{% url 'app:add_domain' %}" class="text-gray-700 hover:text-primary transition">Add Domain</a>
+                    <a href="{% url 'app:extension_info' %}" class="text-gray-700 hover:text-primary transition">Extension</a>
+                    <a href="{% url 'app:settings' %}" class="text-gray-700 hover:text-primary transition">Settings</a>
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center space-x-2 text-gray-700 hover:text-primary">
+                            <!-- Django variable: {{ user.username }} -->
+                            <span>User</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                            <a href="{% url 'app:settings' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="#" onclick="handleLogout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p class="text-gray-600">Monitor your domains and view threat analytics</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <!-- Card 1: Domains Monitored -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Domains Monitored</p>
+                        <p id="domains-count" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Total Scans -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Total Scans</p>
+                        <p id="total-scans-count" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Last Scan -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Last Scan</p>
+                        <p id="last-scan" class="text-xl font-bold text-gray-900 mt-2">--</p>
+                    </div>
+                    <div class="w-12 h-12 bg-accent bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">DNS Changes Over Time</h2>
+            <canvas id="dnsChart" height="80"></canvas>
+        </div>
+
+        <!-- Domains List and Recent Alerts -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Domains List -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-900">Your Domains</h2>
+                        <a href="{% url 'app:add_domain' %}" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition text-sm">
+                            + Add Domain
+                        </a>
+                    </div>
+                    <div id="domains-list" class="divide-y divide-gray-200">
+                        {% if domains.exists %}
+                            {% for domain in domains %}
+                                <div class="p-6 hover:bg-gray-50 transition group" data-domain-id="{{ domain.id }}">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3">
+                                                <h3 class="text-lg font-semibold text-gray-900">{{ domain.name }}</h3>
+                                                {% if domain.alerts.count > 0 %}
+                                                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-500 text-white">ALERT</span>
+                                                {% else %}
+                                                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-primary text-white">OK</span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="text-sm text-gray-500 mt-1">Last checked: {{ domain.last_checked|default:"N/A" }}</p>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{% url 'app:domain_detail' domain.id %}" class="text-accent hover:text-accent-dark font-medium text-sm">View Details →</a>
+                                            <button type="button" class="delete-domain-btn opacity-0 group-hover:opacity-100 transition text-red-500 hover:text-red-700 text-sm px-2 py-1" data-domain-id="{{ domain.id }}" data-domain="{{ domain.name }}">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="p-6 text-center">
+                                <p class="text-gray-500 mb-4">No domains added yet</p>
+                                <a href="{% url 'app:add_domain' %}" class="text-accent hover:underline font-medium">Add your first domain</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocklist / Recent Alerts -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-900">Blocklist</h2>
+                        
+                    </div>
+
+                    <!-- Add new blocked domain -->
+                    <div class="p-4">
+                        <form id="add-block-form" class="flex space-x-2" onsubmit="return false;">
+                            <input id="block-url" name="url" type="text" placeholder="domain or URL (e.g. pornhub.com)" class="flex-1 border rounded-md px-3 py-2" />
+                            <br><br>
+                            <select id="block-category" name="category" class="border rounded-md px-2 py-2 text-sm">
+                                <option value="pornography">Pornography</option>
+                                <option value="nudity">Nudity</option>
+                                <option value="adult_dating">Adult Dating</option>
+                                <option value="illegal_content">Illegal Content</option>
+                                <option value="malware">Malware/Phishing</option>
+                                <option value="spam">Spam</option>
+                            </select>
+                            <button id="add-block-btn" class="bg-primary text-white px-3 py-2 rounded-md text-sm">Add</button>
+                        </form>
+                        <p id="add-block-msg" class="text-xs text-gray-500 mt-2"></p>
+                    </div>
+
+                    <!-- Current adult blocklist (server-rendered) -->
+                    <div id="adult-list" class="divide-y divide-gray-200">
+                        {% if adult_domains and adult_domains|length > 0 %}
+                            {% for a in adult_domains %}
+                                <div class="p-4 hover:bg-gray-50 transition flex items-center justify-between group" data-domain-id="{{ a.id }}">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ a.domain }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">{{ a.category }} • {{ a.added_at }}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-400">Active</span>
+                                        <button type="button" class="delete-blocklist-btn opacity-0 group-hover:opacity-100 transition text-red-500 hover:text-red-700 text-sm px-2 py-1" data-domain-id="{{ a.id }}" data-domain="{{ a.domain }}">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="p-6 text-center text-gray-500 text-sm">No blocked domains yet</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-white border-l-4 rounded-lg shadow-lg p-4 max-w-sm z-50">
+        <div class="flex items-center">
+            <div id="toast-icon" class="mr-3"></div>
+            <p id="toast-message" class="text-gray-800"></p>
+        </div>
+    </div>
+
+    <script>
+        // Utility: Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-primary rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            } else if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 bg-white border-l-4 border-red-500 rounded-lg shadow-lg p-4 max-w-sm z-50';
+                toastIcon.innerHTML = '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            }
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        }
+
+        // User menu toggle
+        document.getElementById('user-menu-btn').addEventListener('click', () => {
+            document.getElementById('user-menu').classList.toggle('hidden');
+        });
+
+        // Mobile menu toggle: show/hide the desktop menu on small screens
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('desktop-menu');
+            if (!menu) return;
+
+            // If menu is currently hidden, open it with mobile-friendly classes
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                // Add mobile layout classes (keep md:flex intact for larger screens)
+                menu.classList.add('flex', 'flex-col', 'space-y-4', 'p-4', 'absolute', 'top-16', 'left-0', 'right-0', 'bg-white', 'shadow-md', 'z-40');
+            } else {
+                // Close menu: remove mobile-specific classes and hide
+                menu.classList.add('hidden');
+                menu.classList.remove('flex', 'flex-col', 'space-y-4', 'p-4', 'absolute', 'top-16', 'left-0', 'right-0', 'bg-white', 'shadow-md', 'z-40');
+            }
+        });
+
+            // Logout handler
+        function handleLogout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '{% url "app:logout" %}';
+        }
+
+        // Initialize Chart (data will be populated dynamically)
+        const ctx = document.getElementById('dnsChart').getContext('2d');
+        const dnsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'DNS Changes',
+                    data: [],
+                    borderColor: '#0EA44B',
+                    backgroundColor: 'rgba(14, 164, 75, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // Fetch change history for charts
+        async function loadChangeHistory(months = 12) {
+            try {
+                const resp = await fetch(`/api/change_history/?months=${encodeURIComponent(months)}`, { credentials: 'same-origin' });
+                if (!resp.ok) throw new Error('Failed to load change history');
+                const json = await resp.json();
+                const labels = json.labels || [];
+                const counts = json.counts || [];
+                dnsChart.data.labels = labels;
+                dnsChart.data.datasets[0].data = counts;
+                dnsChart.update();
+            } catch (err) {
+                console.error('Error loading change history:', err);
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Wire to Django endpoint: GET /api/domains/
+                // Ensure fetch sends cookies so Django session auth is used
+                const response = await fetch('/api/domains/', {
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) throw new Error('Failed to load domains');
+
+                const data = await response.json();
+                // Expected response: { domains: [...], stats: { total: 5, threats: 2, last_scan: '2025-01-15T10:30:00Z' } }
+
+                updateStats(data.stats || {});
+                renderDomainsList(data.domains || []);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                // Keep server-rendered content if available; only show the error block when no server list exists
+                const container = document.getElementById('domains-list');
+                if (!container || container.querySelectorAll('.p-6').length === 0) {
+                    container.innerHTML = '<div class="p-6 text-center text-red-500">Failed to load domains. Please refresh.</div>';
+                } else {
+                    // Log but don't clobber existing server-side content
+                    console.warn('Using server-rendered domain list because API fetch failed');
+                }
+            }
+        }
+
+        // Update stats cards
+        function updateStats(stats) {
+            document.getElementById('domains-count').textContent = stats.total || 0;
+            document.getElementById('total-scans-count').textContent = stats.total_scans || 0;
+            
+            if (stats.last_scan) {
+                const date = new Date(stats.last_scan);
+                document.getElementById('last-scan').textContent = date.toLocaleString();
+            }
+        }
+
+        // Render domains list
+        function renderDomainsList(domains) {
+            const container = document.getElementById('domains-list');
+            
+            if (domains.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center">
+                        <p class="text-gray-500 mb-4">No domains added yet</p>
+                        <a href="{% url 'app:add_domain' %}" class="text-accent hover:underline font-medium">Add your first domain</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = domains.map(domain => {
+                const statusClass = domain.status === 'secure' ? 'bg-primary text-white' : 
+                                  domain.status === 'warning' ? 'bg-yellow-500 text-white' : 
+                                  'bg-red-500 text-white';
+                
+                return `
+                    <div class="p-6 hover:bg-gray-50 transition group" data-domain-id="${domain.id}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3">
+                                    <h3 class="text-lg font-semibold text-gray-900">${domain.name}</h3>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium ${statusClass}">
+                                        ${domain.status}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Last checked: ${new Date(domain.last_checked).toLocaleString()}</p>
+                                <p class="text-xs text-gray-400 mt-1">Rescans: ${domain.scan_count || 0}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <a href="{% url 'app:domain_detail_by_name' %}?domain=${encodeURIComponent(domain.name)}" 
+                                   class="text-accent hover:text-accent-dark font-medium text-sm">
+                                    View Details →
+                                </a>
+                                <button type="button" class="delete-domain-btn opacity-0 group-hover:opacity-100 transition text-red-500 hover:text-red-700 text-sm px-2 py-1" data-domain-id="${domain.id}" data-domain="${domain.name}">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load recent alerts
+        async function loadRecentAlerts() {
+            try {
+                // Wire to Django endpoint: GET /api/alerts/?limit=5
+                const response = await fetch('/api/alerts/?limit=5', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load alerts');
+                
+                const data = await response.json();
+                // Expected response: { alerts: [...] }
+                
+                renderRecentAlerts(data.alerts || []);
+                
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+            }
+        }
+
+        // Render recent alerts
+        function renderRecentAlerts(alerts) {
+            const container = document.getElementById('recent-alerts');
+            
+            if (alerts.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-gray-500 text-sm">No recent alerts</div>';
+                return;
+            }
+            
+            container.innerHTML = alerts.map(alert => {
+                const severityClass = alert.severity === 'high' ? 'text-red-600' : 
+                                    alert.severity === 'medium' ? 'text-yellow-600' : 
+                                    'text-blue-600';
+                
+                return `
+                    <div class="p-4 hover:bg-gray-50 transition">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0 mt-1">
+                                <svg class="w-5 h-5 ${severityClass}" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">${alert.type}</p>
+                                <p class="text-xs text-gray-500 mt-1">${alert.domain}</p>
+                                <p class="text-xs text-gray-400 mt-1">${new Date(alert.timestamp).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper: get CSRF token from cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Initialize dashboard on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            loadRecentAlerts();
+
+            // Attach add-block form handler
+            const addForm = document.getElementById('add-block-form');
+            if (addForm) {
+                addForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const urlInput = document.getElementById('block-url');
+                    const categoryInput = document.getElementById('block-category');
+                    const msg = document.getElementById('add-block-msg');
+                    const urlVal = urlInput.value.trim();
+                    const categoryVal = categoryInput.value;
+                    if (!urlVal) {
+                        msg.textContent = 'Please enter a URL or domain';
+                        return;
+                    }
+
+                    try {
+                        const resp = await fetch('/api/adult-domain/add/', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken') || ''
+                            },
+                            body: JSON.stringify({ url: urlVal, category: categoryVal })
+                        });
+
+                        const json = await resp.json();
+                        if (!resp.ok || json.error) {
+                            msg.textContent = json.error || 'Failed to add domain';
+                            return;
+                        }
+
+                        // Success: show toast and update list
+                        showToast('Domain added to blocklist', 'success');
+                        urlInput.value = '';
+                        msg.textContent = '';
+
+                        // Prepend to adult-list
+                        const list = document.getElementById('adult-list');
+                        if (list) {
+                            const div = document.createElement('div');
+                            div.className = 'p-4 hover:bg-gray-50 transition flex items-center justify-between group';
+                            div.setAttribute('data-domain-id', json.id || '');
+                            div.innerHTML = `
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">${json.domain}</p>
+                                    <p class="text-xs text-gray-500 mt-1">${json.category} • just now</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-gray-400">Active</span>
+                                    <button type="button" class="delete-blocklist-btn opacity-0 group-hover:opacity-100 transition text-red-500 hover:text-red-700 text-sm px-2 py-1" data-domain-id="${json.id || ''}" data-domain="${json.domain}">
+                                        Delete
+                                    </button>
+                                </div>
+                            `;
+                            list.prepend(div);
+                            
+                            // Attach delete handler to the new button
+                            const newBtn = div.querySelector('.delete-blocklist-btn');
+                            if (newBtn) {
+                                newBtn.addEventListener('click', async (e) => {
+                                    e.preventDefault();
+                                    const domainId = newBtn.getAttribute('data-domain-id');
+                                    const domainName = newBtn.getAttribute('data-domain');
+                                    
+                                    if (!confirm(`Are you sure you want to delete "${domainName}" from the blocklist?`)) {
+                                        return;
+                                    }
+
+                                    try {
+                                        const resp = await fetch('/api/adult-domain/delete/', {
+                                            method: 'POST',
+                                            credentials: 'same-origin',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRFToken': getCookie('csrftoken') || ''
+                                            },
+                                            body: JSON.stringify({ id: domainId })
+                                        });
+
+                                        const json = await resp.json();
+                                        if (!resp.ok || json.error) {
+                                            showToast(json.error || 'Failed to delete domain', 'error');
+                                            return;
+                                        }
+
+                                        showToast('Domain removed from blocklist', 'success');
+                                        const container = newBtn.closest('[data-domain-id]');
+                                        if (container) {
+                                            container.remove();
+                                        }
+                                        
+                                        const list = document.getElementById('adult-list');
+                                        if (list && list.querySelectorAll('[data-domain-id]').length === 0) {
+                                            list.innerHTML = '<div class="p-6 text-center text-gray-500 text-sm">No blocked domains yet</div>';
+                                        }
+                                    } catch (err) {
+                                        console.error('Error deleting domain:', err);
+                                        showToast('Error deleting domain', 'error');
+                                    }
+                                });
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Error adding domain:', err);
+                        msg.textContent = 'Error adding domain';
+                    }
+                });
+            }
+
+            // Delete blocked domain handler
+            document.querySelectorAll('.delete-blocklist-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const domainId = btn.getAttribute('data-domain-id');
+                    const domainName = btn.getAttribute('data-domain');
+                    
+                    if (!confirm(`Are you sure you want to delete "${domainName}" from the blocklist?`)) {
+                        return;
+                    }
+
+                    try {
+                        const resp = await fetch('/api/adult-domain/delete/', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken') || ''
+                            },
+                            body: JSON.stringify({ id: domainId })
+                        });
+
+                        const json = await resp.json();
+                        if (!resp.ok || json.error) {
+                            showToast(json.error || 'Failed to delete domain', 'error');
+                            return;
+                        }
+
+                        // Success: remove from UI and show toast
+                        showToast('Domain removed from blocklist', 'success');
+                        const container = btn.closest('[data-domain-id]');
+                        if (container) {
+                            container.remove();
+                        }
+                        
+                        // If list is now empty, show the empty state
+                        const list = document.getElementById('adult-list');
+                        if (list && list.querySelectorAll('[data-domain-id]').length === 0) {
+                            list.innerHTML = '<div class="p-6 text-center text-gray-500 text-sm">No blocked domains yet</div>';
+                        }
+                    } catch (err) {
+                        console.error('Error deleting domain:', err);
+                        showToast('Error deleting domain', 'error');
+                    }
+                });
+            });
+
+            // Delete monitored domain handler
+            document.querySelectorAll('.delete-domain-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const domainId = btn.getAttribute('data-domain-id');
+                    const domainName = btn.getAttribute('data-domain');
+                    
+                    if (!confirm(`Are you sure you want to delete "${domainName}" from your monitored domains? This action cannot be undone.`)) {
+                        return;
+                    }
+
+                    try {
+                        const resp = await fetch('/api/domain/delete/', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken') || ''
+                            },
+                            body: JSON.stringify({ id: domainId })
+                        });
+
+                        const json = await resp.json();
+                        if (!resp.ok || json.error) {
+                            showToast(json.error || 'Failed to delete domain', 'error');
+                            return;
+                        }
+
+                        // Success: remove from UI and show toast
+                        showToast('Domain deleted successfully', 'success');
+                        const container = btn.closest('[data-domain-id]');
+                        if (container) {
+                            container.remove();
+                        }
+                        
+                        // If list is now empty, show the empty state
+                        const list = document.getElementById('domains-list');
+                        if (list && list.querySelectorAll('[data-domain-id]').length === 0) {
+                            list.innerHTML = '<div class="p-6 text-center"><p class="text-gray-500 mb-4">No domains added yet</p><a href="{% url "app:add_domain" %}" class="text-accent hover:underline font-medium">Add your first domain</a></div>';
+                        }
+                    } catch (err) {
+                        console.error('Error deleting domain:', err);
+                        showToast('Error deleting domain', 'error');
+                    }
+                });
+            });
+
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                loadDashboardData();
+                loadRecentAlerts();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Extension - NGShield</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = {theme: {extend: {colors: {primary: '#0EA44B', accent: '#0B74FF'}}}}</script>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-white shadow-sm"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex justify-between items-center h-16"><a href="{% url 'app:index' %}" class="flex items-center"><span class="text-2xl font-bold text-primary">NG</span><span class="text-2xl font-bold text-gray-900">Shield</span></a><a href="{% url 'app:dashboard' %}" class="text-accent hover:text-accent-dark transition font-medium">Dashboard</a></div></div></nav>
+    
+    <main class="max-w-5xl mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Browser Extension</h1>
+        <p class="text-xl text-gray-600 mb-8">Real-time domain security warnings in your browser</p>
+        
+        <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Installation (Chrome/Edge)</h2>
+            <ol class="space-y-4 text-gray-700">
+                <li class="flex items-start"><span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 font-bold">1</span><span>Download the extension from Chrome Web Store</span></li>
+                <li class="flex items-start"><span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 font-bold">2</span><span>Click "Add to Chrome" and confirm permissions</span></li>
+                <li class="flex items-start"><span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 font-bold">3</span><span>Login with your NGShield account</span></li>
+                <li class="flex items-start"><span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0 font-bold">4</span><span>Browse safely with automatic threat detection</span></li>
+            </ol>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Required Permissions</h2>
+            <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start"><svg class="w-5 h-5 text-primary mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg><span><strong>tabs:</strong> Read active tab URL to check domain status</span></li>
+                <li class="flex items-start"><svg class="w-5 h-5 text-primary mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg><span><strong>*.ng hosts:</strong> Monitor .ng domains for threats</span></li>
+            </ul>
+        </div>
+
+    </main>
+</body>
+</html>
