@@ -6,6 +6,7 @@ sqlparse==0.5.3
 # Deployment
 gunicorn==23.0.0
 python-dotenv==1.2.1
+whitenoise==6.11.0
 
 # Database
 psycopg2-binary==2.9.10
@@ -33,4 +34,5 @@ cryptography==45.0.7
 # Misc
 pytz==2025.2
 tzdata==2025.2
+
 
