@@ -3,6 +3,19 @@ from django.contrib.auth import update_session_auth_hash
 import json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST, require_GET
+from django.db.models import Count, Q
+from django.db.models.functions import TruncMonth
+from django.utils import timezone
+import re
+import os
+import io
+from django.conf import settings
 
 # --- User Profile Update and Delete Views ---
 @login_required
@@ -63,19 +76,7 @@ def delete_account_view(request):
 	user.delete()
 	logout(request)
 	return JsonResponse({'success': True, 'redirect': '/'})
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST, require_GET
-from django.db.models import Count, Q
-from django.db.models.functions import TruncMonth
-from django.utils import timezone
-import re
-import os
-import io
-from django.conf import settings
+
 
 
 @login_required
@@ -1005,3 +1006,4 @@ def api_keys_revoke(request):
 		return JsonResponse({'error': 'API key not found'}, status=404)
 	except Exception as e:
 		return JsonResponse({'error': str(e)}, status=500)
+
