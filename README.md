@@ -33,42 +33,7 @@ NGShield fills this gap by providing a dedicated, affordable platform designed s
 
 ## 3. Solution & Implementation
 
-### High-Level Architecture
-
 NGShield is a full-stack web application combining Django backend, Tailwind CSS frontend, and browser extension technology to deliver comprehensive DNS security.
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    NGShield Platform                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌──────────────────┐  ┌──────────────────┐                 │
-│  │  Browser         │  │  Dashboard       │                 │
-│  │  Extension       │  │  (Web UI)        │                 │
-│  │  (Chrome/Brave)  │  │                  │                 │
-│  └────────┬─────────┘  └────────┬─────────┘                 │
-│           │                     │                            │
-│           │    Reports Blocks   │  Manages Settings          │
-│           └────────────┬────────┘                            │
-│                        │                                      │
-│           ┌────────────▼──────────────┐                      │
-│           │   Django REST API         │                      │
-│           │  (/api/extension/*)       │                      │
-│           │  (/api/domain/*)          │                      │
-│           │  (/api/alerts/*)          │                      │
-│           └────────────┬──────────────┘                      │
-│                        │                                      │
-│           ┌────────────▼──────────────┐                      │
-│           │   PostgreSQL Database     │                      │
-│           │  - Domains                │                      │
-│           │  - ScanEvents             │                      │
-│           │  - ThreatAlerts           │                      │
-│           │  - AdultContentDomains    │                      │
-│           │  - BlockedURLs            │                      │
-│           └───────────────────────────┘                      │
-│                                                               │
-└─────────────────────────────────────────────────────────────┘
-```
 
 ### Core Features & Technologies
 
@@ -190,4 +155,5 @@ Browser Extension:
 
 **NAME: Oluwawumi Samue**
 - **Role:** Frontend Developer/UI Design
+
 
