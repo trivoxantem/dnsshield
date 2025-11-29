@@ -72,40 +72,24 @@ NGShield is a full-stack web application combining Django backend, Tailwind CSS 
   - Rescan count tracking
   - Threat timeline analytics
   - PDF report generation
+ 
+**Testing and Usage**
+NGShield provides **two layers of protection - on 2 seperate browser you can use Firefox and Chrome, or Brave and Chrome**:
 
-### API Endpoints
 
-```
-Authentication:
-  POST   /auth/register/           - User registration
-  POST   /auth/login/              - User login
-  GET    /auth/logout/             - User logout
+### 🟦 1. Network-Level Protection  (Open Browser A)
+✔ Custom DNS server  
+✔ Blocking of malicious domains  
+✔ Real-time DNS monitoring  
 
-Domain Management:
-  GET    /api/domains/             - List user's domains
-  POST   /api/add-domain/          - Add new domain
-  GET    /api/domain/<id>/         - Get domain details
-  POST   /api/domain/delete/       - Delete domain
-  POST   /api/domain/<id>/rescan/  - Manually rescan domain
+### 🟩 2. Browser-Level Protection  (Open Browser B)
+✔ Lightweight browser extension  
+✔ URL scanning  
+✔ Warning pop-ups  
+✔ Real-time block system
 
-DNS & Monitoring:
-  GET    /api/check-domain-status/ - Fetch DNS records & WHOIS
-  GET    /api/change-history/      - Get DNS change history
+### 🟩To test the application on Laptop you must have python installed or open the CMD and type "pip install -r requirements.txt" to insall everything and then open the project and in your Terminal in Visual STudio Code you will type "py manage.py runserver" and the port will be open locally on "http://127.0.0.1:8000"
 
-Adult Blocklist Management:
-  GET    /api/extension/adult-blocklist/   - Fetch blocklist for extension
-  POST   /api/adult-domain/add/            - Add domain to blocklist
-  POST   /api/adult-domain/delete/         - Remove from blocklist
-
-Threat & Alerts:
-  GET    /api/alerts/                      - List alerts
-  POST   /api/extension/report-blocked-attempt/ - Report blocked access
-  POST   /api/alert/<id>/resolve/          - Mark alert resolved
-
-Browser Extension:
-  GET    /api/extension/check-url/         - Check if URL is blocked
-  POST   /api/extension/report-ad/         - Report ad attempt
-```
 
 ### Technology Stack
 
@@ -117,32 +101,6 @@ Browser Extension:
 | **DevOps** | Docker, GitHub Actions, Gunicorn, Nginx |
 | **Security** | CSRF tokens, Session auth, Password hashing, HTTPS |
 
----
-
-## 4. Future Roadmap
-
-### Phase 1: Enhanced Analytics & Intelligence (Months 1-2)
-- **Advanced Threat Intelligence:** Integration with VirusTotal, URLhaus APIs for malware detection
-- **Predictive Alerts:** Machine learning models to detect suspicious patterns before attacks occur
-- **Custom Reporting:** Exportable threat reports in PDF/CSV formats with executive summaries
-
-### Phase 2: Enterprise Features & Scalability (Months 3-4)
-- **Multi-Tenant Support:** Organizations manage multiple domains with team collaboration
-- **API Rate Limiting & Monetization:** Tiered API access with subscription models
-- **SSO Integration:** LDAP/SAML integration for enterprise authentication
-- **Slack/Teams Integration:** Direct alerts to communication platforms
-
-### Phase 3: Global Expansion & Monetization (Months 5-6)
-- **Multi-TLD Support:** Extend beyond .ng to other African TLDs (.za, .ke, .gh)
-- **Premium Tier:** Advanced features (24/7 support, custom integrations, dedicated infrastructure)
-- **Enterprise Licensing:** Per-domain licensing model with volume discounts
-- **Managed Services:** Offer DNS security as a managed service for small businesses
-
-### Phase 4: Community & Ecosystem (Ongoing)
-- **Open Blocklist Registry:** Community-curated blocklists for adult content and malware
-- **NiRA Partnership:** Official partnership with Nigerian Registry to embed security recommendations
-- **Educational Resources:** Training materials for organizations on DNS security best practices
-- **Threat Sharing Network:** Anonymous threat intelligence sharing among users
 
 ## 5. Team Member Contributions
 
@@ -155,5 +113,8 @@ Browser Extension:
 
 **NAME: Oluwawumi Samue**
 - **Role:** Frontend Developer/UI Design
+
+
+
 
 
